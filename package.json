@@ -1,6 +1,6 @@
 {
-  "name": "Node.js-Presentation-Control",
-  "description": "A Presentation control server",
+  "name": "reveal.js-remote",
+  "description": "A presentation control server",
   "author": "Cologne Intelligence GmbH",
   "license" : "MIT",
   "dependencies": {
