@@ -9,7 +9,6 @@ var
   args, server,
   app = express();
 
-
 server = createServer(parseArgs(), app);
 
 io = socketIo.listen(server, {path: '/s'});
@@ -99,13 +98,29 @@ function createServer(args, app) {
   return server;
 }
 
-
 function parseArgs() {
   var args,
     optionList = [
-      {name: 'port', alias: 'p', type: Number, defaultValue: 8080},
-      {name: 'ssl', alias: 's', defaultValue: null},
-      {name: 'help', alias: 'h'}
+      {
+        name: 'port',
+        alias: 'p',
+        typeLabel: '[underline]{port}',
+        type: Number,
+        defaultValue: 8080,
+        description: "Webserver port (default 8080)"
+      },
+      {
+        name: 'ssl',
+        alias: 's',
+        typeLabel: '[underline]{pfxFile}',
+        defaultValue: null,
+        description: "Enable ssl mode, requires the path to a pfx file as argument"
+      },
+      {
+        name: 'help',
+        alias: 'h',
+        description: "Displays this help"
+      }
     ];
 
   try {
@@ -117,10 +132,23 @@ function parseArgs() {
 
   if (typeof args.help !== 'undefined') {
     console.warn(commandLineUsage(
-      {
-        header: 'Options',
-        optionList: optionList
-      }));
+      [
+        {
+          header: 'reveal.js-remote',
+          content: 'Broker for remote controlling a reveal.js presentation'
+        },
+        {
+          header: 'Synopsis',
+          content: [
+            '$ node main [--port 8080] [--ssl serverCert.pfx]',
+            '$ node main --help'
+          ]
+        },
+        {
+          header: 'Options',
+          optionList: optionList
+        }
+      ]));
     process.exit(1);
   }
 
