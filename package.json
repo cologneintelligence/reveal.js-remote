@@ -2,6 +2,7 @@
   "name": "Node.js-Presentation-Control",
   "description": "A Presentation control server",
   "author": "Cologne Intelligence GmbH",
+  "license" : "MIT",
   "dependencies": {
     "express": "4.8.x",
     "command-line-args": "4.0.x",
@@ -12,5 +13,9 @@
   },
   "devDependencies": {
     "nodemon": "^1.11.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cologneintelligence/reveal.js-remote.git"
   }
 }
