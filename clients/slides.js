@@ -1,15 +1,21 @@
 (function () {
-  var socket, base, reveal, div, listeners = {};
+  var baseUrl, socket, reveal, div, image, link, listeners = {}, serverUrl;
 
   function init() {
-    var scripts;
+    var scripts, endpoint;
 
-    if (typeof window.controlSlidesConfig !== 'undefined' && typeof window.controlSlidesConfig.url === 'string') {
-      base = window.controlSlidesConfig.url;
+    if (typeof window.controlSlidesConfig !== 'undefined' && typeof window.controlSlidesConfig.path === 'string') {
+      baseUrl = window.controlSlidesConfig.url;
     } else {
       scripts = document.getElementsByTagName("script");
-      base = scripts[scripts.length - 1].src.replace(/[^\/]+$/, '');
+      baseUrl = removeFilename(scripts[scripts.length - 1].src);
     }
+
+    if (!baseUrl.endsWith('/')) {
+      baseUrl += '/';
+    }
+    endpoint = removeProtocol(baseUrl) + 'socket.io';
+    serverUrl = getServer(baseUrl);
 
     if (typeof window.controlSlidesConfig !== 'undefined' && typeof window.controlSlidesConfig.reveal === 'object') {
       reveal = window.controlSlidesConfig.reveal;
@@ -17,11 +23,33 @@
       reveal = window.Reveal;
     }
 
-    socket = io.connect(base, {path: '/s'});
-    socket.emit('start', {
-      type: 'slides',
-      url: base
+    console.log("Connecting to", serverUrl, endpoint);
+    socket = io.connect(serverUrl, {path: endpoint});
+
+    socket.on('connect_error', function (err) {
+      console.warn("Could not connect to socket.io-remote server", err);
     });
+    socket.on('reconnect_error', function (err) {
+      console.warn("Could not reconnect to socket.io-remote server", err);
+    });
+    socket.on('connect_timeout', function () {
+      console.warn("Could not connect to socket.io-remote server (timeout)");
+    });
+    socket.on('reconnect_failed', function (err) {
+      console.warn("Could not reconnect to socket.io-remote server - this was the last try, giving up", err);
+    });
+    socket.on('error', function (err) {
+      console.warn("Unknown error in socket.io", err);
+    });
+    socket.on('connect', function () {
+      console.info("Connected - sending welcome message");
+
+      socket.emit('start', {
+        type: 'slides',
+        url: baseUrl
+      });
+    });
+
 
     socket.on('init', msg_init);
     socket.on('client_connected', msg_client_connected);
@@ -36,43 +64,48 @@
     on('overview', reveal.toggleOverview);
     on('pause', reveal.togglePause);
     on('autoslide', reveal.toggleAutoSlide);
+
+    console.info("Starting connection");
   }
 
   function msg_init(data) {
-    reveal.registerKeyboardShortcut('Shift + r', 'Show remote control url');
+    reveal.registerKeyboardShortcut('Shift + R', 'Show remote control url');
     createPopup(data.image, data.url);
     addPopupListener();
     registerRevealEvents();
   }
 
-  function createPopup(image, url) {
-    div = document.createElement("div");
-    var img = document.createElement("img"),
-      a = document.createElement("a"),
-      body = document.getElementsByTagName("body")[0];
+  function createPopup(imageData, url) {
+    var body = document.getElementsByTagName("body")[0];
+    link = document.createElement("a");
+    image = document.createElement("img");
 
-    img.src = image;
+    if (div === undefined) {
+      div = document.createElement("div");
 
-    div.class = "remote-qr-overlay";
+      div.class = "remote-qr-overlay";
 
-    div.style.display = "none";
-    div.style.position = "fixed";
-    div.style.width = "100%";
-    div.style.height = "100%";
-    div.style.top = 0;
-    div.style.bottom = 0;
-    div.style.textAlign = "center";
-    div.style.background = "#FFFFFF";
-    div.style.zIndex = 1000;
+      div.style.display = "none";
+      div.style.position = "fixed";
+      div.style.width = "100%";
+      div.style.height = "100%";
+      div.style.top = 0;
+      div.style.bottom = 0;
+      div.style.textAlign = "center";
+      div.style.background = "#FFFFFF";
+      div.style.zIndex = 1000;
 
-    a.text = url;
-    a.href = url;
-    a.target = "_blank";
+      link.target = "_blank";
 
-    div.appendChild(img);
-    div.appendChild(document.createElement("br"));
-    div.appendChild(a);
-    body.appendChild(div);
+      div.appendChild(image);
+      div.appendChild(document.createElement("br"));
+      div.appendChild(link);
+      body.appendChild(div);
+    }
+
+    image.src = imageData;
+    link.text = url;
+    link.href = url;
   }
 
   function addPopupListener() {
@@ -137,6 +170,18 @@
     } else {
       console.log("No listener registered for", cmd, Object.keys(listeners));
     }
+  }
+
+  function removeProtocol(url) {
+    return url.replace(/[^/]+\/\/[^/]+\//, '/');
+  }
+
+  function removeFilename(url) {
+    return url.replace(/\/slides\.js(\?.*)?$/, '');
+  }
+
+  function getServer(url) {
+    return url.replace(/^([^/]+\/\/[^/]+).*/, '$1/');
   }
 
   init();

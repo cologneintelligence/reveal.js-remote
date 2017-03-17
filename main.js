@@ -9,11 +9,11 @@ var
   args, server,
   app = express();
 
-server = createServer(parseArgs(), app);
+args = parseArgs();
+server = createServer(args, app);
 
-io = socketIo.listen(server, {path: '/s'});
-
-app.use('/', express.static(__dirname + '/clients'));
+io = socketIo.listen(server, {path: args.basepath + "socket.io"});
+app.use(args.basepath, express.static(__dirname + '/clients'));
 
 io.sockets.on('connection', function (socket) {
   socket.once('start', function (data) {
@@ -107,14 +107,21 @@ function parseArgs() {
         typeLabel: '[underline]{port}',
         type: Number,
         defaultValue: 8080,
-        description: "Webserver port (default 8080)"
+        description: "Webserver port (default: 8080)"
       },
       {
         name: 'ssl',
         alias: 's',
         typeLabel: '[underline]{pfxFile}',
         defaultValue: null,
-        description: "Enable ssl mode, requires the path to a pfx file as argument"
+        description: "Enable ssl mode, requires the path to a pfx file as argument (default: none)"
+      },
+      {
+        name: 'basepath',
+        alias: 'b',
+        typeLabel: '[underline]{path}',
+        defaultValue: '/',
+        description: "URL basepath where the application can be found (useful for reverse proxys, default: /)"
       },
       {
         name: 'help',
@@ -140,7 +147,7 @@ function parseArgs() {
         {
           header: 'Synopsis',
           content: [
-            '$ node main [--port 8080] [--ssl serverCert.pfx]',
+            '$ node main [--port 8080] [--ssl serverCert.pfx] [--basepath /presentation]',
             '$ node main --help'
           ]
         },
@@ -150,6 +157,10 @@ function parseArgs() {
         }
       ]));
     process.exit(1);
+  }
+
+  if (!args.basepath.endsWith('/')) {
+    args.basepath += '/';
   }
 
   return args;

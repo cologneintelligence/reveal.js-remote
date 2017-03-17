@@ -2,18 +2,33 @@ window.slideControl = (function () {
   var socket;
 
   function init() {
-    var base = window.location.protocol + "//" + window.location.host,
+    var base = window.location.pathname.replace(/\/[^\/]*(\?.*)?$/, '/socket.io'),
       id = window.location.search.substr(1);
-    console.log("Connect to:", base);
-    socket = io.connect(base, {path: '/s'});
+    socket = io.connect('/', {path: base});
 
-    socket.on('init', function () {
-      console.log("init!");
+
+    socket.on('connect_error', function (err) {
+      console.warn("Could not connect to socket.io-remote server", err);
     });
+    socket.on('reconnect_error', function (err) {
+      console.warn("Could not reconnect to socket.io-remote server", err);
+    });
+    socket.on('connect_timeout', function () {
+      console.warn("Could not connect to socket.io-remote server (timeout)");
+    });
+    socket.on('reconnect_failed', function (err) {
+      console.warn("Could not reconnect to socket.io-remote server - this was the last try, giving up", err);
+    });
+    socket.on('error', function (err) {
+      console.warn("Unknown error in socket.io", err);
+    });
+    socket.on('connect', function () {
+      console.info("Connected - sending welcome message");
 
-    socket.emit('start', {
-      type: 'remote',
-      id: id
+      socket.emit('start', {
+        type: 'remote',
+        id: id
+      });
     });
 
     socket.on('notes_changed', function (data) {
