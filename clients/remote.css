@@ -1,0 +1,21 @@
+a, a:link, a:active, a:hover, a:visited {
+  color: blue;
+  text-decoration: none;
+}
+
+a.pressed, a.pressed:link, a.pressed:active, a.pressed:hover, a.pressed:visited {
+  font-weight: bold;
+}
+
+a.disabled, a.disabled:link, a.disabled:active, a.disabled:hover, a.disabled:visited {
+  font-style: italic;
+  color: gray;
+  pointer-events: none;
+  cursor: default;
+}
+
+#progress {
+  height: 3px;
+  background-color: blue;
+  width: 0%;
+}

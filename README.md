@@ -1,0 +1,5 @@
+# Start
+
+```
+node main
+```

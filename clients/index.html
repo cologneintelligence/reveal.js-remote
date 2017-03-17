@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Remote Control</title>
+    <link rel="stylesheet" href="remote.css" type="text/css"/>
+    <script src="s/socket.io.js"></script>
+    <script src="remote.js"></script>
+</head>
+<body>
+<h1>Remote Control</h1>
+
+<div id="notes">
+</div>
+
+<div>
+    <div id="progress"></div>
+</div>
+
+<div>
+    <div>
+        <a href="#" id="left" onclick="slideControl.left(); return false;">left</a>
+        <a href="#" id="right" onclick="slideControl.right(); return false;">right</a>
+        <a href="#" id="up" onclick="slideControl.up(); return false;">up</a>
+        <a href="#" id="down" onclick="slideControl.down(); return false;">down</a>
+    </div>
+
+    <div>
+        <a href="#" id="overview" onclick="slideControl.overview(); return false;">overview</a>
+        <a href="#" id="pause" onclick="slideControl.pause(); return false;">pause</a>
+        <a href="#" id="autoslide" onclick="slideControl.autoslide(); return false;">autoslide</a>
+    </div>
+
+    <div class="mainNav">
+        <a href="#" id="prev" onclick="slideControl.prev(); return false;">prev</a>
+        <a href="#" id="next" onclick="slideControl.next(); return false;">next</a>
+    </div>
+</div>
+
+</body>
+</html>
