@@ -37,3 +37,7 @@ Include the following codeblock into your presentation
 ```
 
 While presenting, press `shift-r`!
+
+### Sources
+
+The swipe detection is adopted from [marcandre's detect_swipe](https://github.com/marcandre/detect_swipe)

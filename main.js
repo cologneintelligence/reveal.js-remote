@@ -15,6 +15,9 @@ server = createServer(args, app);
 io = socketIo.listen(server, {path: args.basepath + "socket.io"});
 app.use(args.basepath, express.static(__dirname + '/clients'));
 
+app.use(args.basepath + "fontawesome/css", express.static('./node_modules/font-awesome/css'));
+app.use(args.basepath + "fontawesome/fonts", express.static('./node_modules/font-awesome/fonts'));
+
 io.sockets.on('connection', function (socket) {
   socket.once('start', function (data) {
     if (data.type === "slides") {

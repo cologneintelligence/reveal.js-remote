@@ -141,6 +141,7 @@
   }
 
   function sendState() {
+    var config = reveal.getConfig();
     socket.emit('state_changed', {
       isFirstSlide: reveal.isFirstSlide(),
       isLastSlide: reveal.isLastSlide(),
@@ -150,7 +151,9 @@
       progress: reveal.getProgress(),
       slideCount: reveal.getTotalSlides(),
       indices: reveal.getIndices(),
-      availableRoutes: reveal.availableRoutes()
+      availableRoutes: reveal.availableRoutes(),
+      autoslide: (typeof config.autoSlide === 'number' && config.autoSlide > 0) &&
+                 (typeof config.autoSlideStoppable !== 'boolean' || !config.autoSlideStoppable)
     });
   }
 

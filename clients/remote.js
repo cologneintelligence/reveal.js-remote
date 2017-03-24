@@ -4,8 +4,12 @@ window.slideControl = (function () {
   function init() {
     var base = window.location.pathname.replace(/\/[^\/]*(\?.*)?$/, '/socket.io'),
       id = window.location.search.substr(1);
-    socket = io.connect('/', {path: base});
 
+    setupSwipe();
+    window.addEventListener && window.addEventListener("resize", resize);
+    resize();
+
+    socket = io.connect('/', {path: base});
 
     socket.on('connect_error', function (err) {
       console.warn("Could not connect to socket.io-remote server", err);
@@ -32,7 +36,11 @@ window.slideControl = (function () {
     });
 
     socket.on('notes_changed', function (data) {
-      document.getElementById('notes').innerHTML = data.text;
+      var text = data.text;
+      if (text === undefined || text === null || text.trim() === "") {
+        text = "(The current slide has no speaker notes)";
+      }
+      document.getElementById('notes').innerHTML = text;
     });
 
     socket.on('state_changed', function (data) {
@@ -42,23 +50,97 @@ window.slideControl = (function () {
 
       document.getElementById('next').className = data.isLastSlide ? 'disabled' : '';
       document.getElementById('prev').className = data.isFirstSlide ? 'disabled' : '';
-      document.getElementById('left').className = data.availableRoutes.left ? '' : 'disable';
+      document.getElementById('left').className = data.availableRoutes.left ? '' : 'disabled';
       document.getElementById('right').className = data.availableRoutes.right ? '' : 'disabled';
       document.getElementById('up').className = data.availableRoutes.up ? '' : 'disabled';
       document.getElementById('down').className = data.availableRoutes.down ? '' : 'disabled';
 
       document.getElementById('pause').className = data.isPaused ? 'pressed' : '';
       document.getElementById('overview').className = data.isOverview ? 'pressed' : '';
-      document.getElementById('autoslide').className = data.isAutoSliding ? 'pressed' : '';
+
+      if (data.autoslide) {
+        document.getElementById('autoslide').className = data.isAutoSliding ? 'pressed' : '';
+      } else {
+        document.getElementById('autoslide').className = 'hidden';
+      }
+    });
+  }
+
+  function sendCommand(cmd) {
+    socket.emit('command', {
+      command: cmd
     });
   }
 
   function command(cmd) {
     return function () {
-      socket.emit('command', {
-        command: cmd
-      });
+      sendCommand(cmd);
     };
+  }
+
+  function setupSwipe() {
+    var startX,
+      startY,
+      isMoving = false,
+      target = document.getElementById("notes");
+
+    target.addEventListener('touchstart', function (e) {
+      if (e.touches.length === 1) {
+        startX = e.touches[0].pageX;
+        startY = e.touches[0].pageY;
+        isMoving = true;
+        target.addEventListener('touchmove', onTouchMove, false);
+        target.addEventListener('touchend', onTouchEnd, false);
+      }
+    }, false);
+
+    function onTouchEnd() {
+      target.removeEventListener('touchmove', onTouchMove);
+      target.removeEventListener('touchend', onTouchEnd);
+      isMoving = false;
+    }
+
+    function onTouchMove(e) {
+      if (isMoving) {
+        var x = e.touches[0].pageX,
+          y = e.touches[0].pageY,
+          dx = startX - x,
+          dy = startY - y;
+
+        if (Math.abs(dx) >= 25) {
+          if (Math.abs(dy) <= 50) {
+            sendCommand(dx > 0 ? "next" : "prev");
+          }
+
+          onTouchEnd();
+        } else if (Math.abs(dy) > 100) {
+          onTouchEnd();
+        }
+      }
+    }
+  }
+
+  function resize() {
+    var w = window.innerWidth
+            || document.documentElement.clientWidth
+            || document.body.clientWidth,
+      h = window.innerHeight
+          || document.documentElement.clientHeight
+          || document.body.clientHeight,
+      fontSize = Math.floor(Math.min(w / 10, h * 0.3) * 0.85),
+      square = Math.floor(Math.min(w / 4, h * 0.3) * 0.9);
+
+    document.getElementById("buttons").style.fontSize = fontSize + "px";
+    document.getElementById("arrows").style.height = Math.floor(square) + "px";
+    document.getElementById("arrows").style.width = Math.floor(square) + "px";
+  }
+
+  function showMenu() {
+    document.getElementsByTagName('body')[0].className = '';
+  }
+
+  function hideMenu() {
+    document.getElementsByTagName('body')[0].className = 'collapsed';
   }
 
   init();
@@ -72,6 +154,8 @@ window.slideControl = (function () {
     down: command("down"),
     overview: command("overview"),
     pause: command("pause"),
-    autoslide: command("autoslide")
+    autoslide: command("autoslide"),
+    showMenu: showMenu,
+    hideMenu: hideMenu
   }
 })();
