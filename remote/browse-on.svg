@@ -1,0 +1,6 @@
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="IconsRepoEditor" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 210 210" style="enable-background:new 0 0 210 210;" xml:space="preserve" width="100px" height="100px" fill="#ff8888" stroke="#ff8888" stroke-width="0">
+
+<g id="IconsRepo_bgCarrier"/> <g id="IconsRepoEditor"> <path id="IconsRepoEditor" d="M75,0H15C6.716,0,0,6.716,0,15v60c0,8.284,6.716,15,15,15h60c8.284,0,15-6.716,15-15V15 C90,6.716,83.284,0,75,0z"/> <path id="IconsRepoEditor" d="M75,120H15c-8.284,0-15,6.716-15,15v60c0,8.284,6.716,15,15,15h60c8.284,0,15-6.716,15-15v-60 C90,126.716,83.284,120,75,120z"/> <path id="IconsRepoEditor" d="M195,0h-60c-8.284,0-15,6.716-15,15v60c0,8.284,6.716,15,15,15h60c8.284,0,15-6.716,15-15V15 C210,6.716,203.284,0,195,0z"/> <path id="IconsRepoEditor" d="M195,120h-60c-8.284,0-15,6.716-15,15v60c0,8.284,6.716,15,15,15h60c8.284,0,15-6.716,15-15v-60 C210,126.716,203.284,120,195,120z"/> </g>
+
+</svg>

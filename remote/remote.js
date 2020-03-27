@@ -1,31 +1,34 @@
-window.slideControl = (function () {
+window.slideControl = window.slideControl || (function () {
   var socket;
 
   function init() {
-    var base = window.location.pathname.replace(/\/[^\/]*(\?.*)?$/, '/socket.io'),
+    var path = window.location.pathname.replace(/\/_remote\/[^\/]*(?:\?.*)?$/, '/socket.io'),
       id = window.location.search.substr(1);
 
     setupSwipe();
-    window.addEventListener && window.addEventListener("resize", resize);
-    resize();
 
-    socket = io.connect('/', {path: base});
+    socket = io.connect({path: path});
 
     socket.on('connect_error', function (err) {
       console.warn("Could not connect to socket.io-remote server", err);
     });
+    
     socket.on('reconnect_error', function (err) {
       console.warn("Could not reconnect to socket.io-remote server", err);
     });
+    
     socket.on('connect_timeout', function () {
       console.warn("Could not connect to socket.io-remote server (timeout)");
     });
+    
     socket.on('reconnect_failed', function (err) {
       console.warn("Could not reconnect to socket.io-remote server - this was the last try, giving up", err);
     });
+    
     socket.on('error', function (err) {
       console.warn("Unknown error in socket.io", err);
     });
+
     socket.on('connect', function () {
       console.info("Connected - sending welcome message");
 
@@ -118,21 +121,6 @@ window.slideControl = (function () {
         }
       }
     }
-  }
-
-  function resize() {
-    var w = window.innerWidth
-            || document.documentElement.clientWidth
-            || document.body.clientWidth,
-      h = window.innerHeight
-          || document.documentElement.clientHeight
-          || document.body.clientHeight,
-      fontSize = Math.floor(Math.min(w / 10, h * 0.3) * 0.85),
-      square = Math.floor(Math.min(w / 4, h * 0.3) * 0.9);
-
-    document.getElementById("buttons").style.fontSize = fontSize + "px";
-    document.getElementById("arrows").style.height = Math.floor(square) + "px";
-    document.getElementById("arrows").style.width = Math.floor(square) + "px";
   }
 
   function showMenu() {

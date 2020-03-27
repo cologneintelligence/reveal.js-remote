@@ -1,5 +1,9 @@
 # reveal.js remote
 
+## Demo
+
+A [demo](https://presentations.jowisoftware.de/demo/) is available from.
+
 ## Using the tool
 
 ### Server side
@@ -12,32 +16,107 @@ npm install
 
 To run the server, start:
 
-```
-node main
+```sh
+node index
 ```
 
 The default port is 8080. Append "--help" for more information.
 
 ### Client side
 
-Include the following codeblock into your presentation
+Include the following codeblock into your presentation's configuration:
 
-```html
-    <!-- fully optional, the url is automatically detected:
-    <script>
-    window.controlSlidesConfig = {
-        url: 'http://your-sever.org:8080'
-    };
-    </script>
-    -->
+```javascript
+    Reveal.initialize({
+    // ...
+    /*
+        reveal.js-remote:
+        optional configuration (with default values)
+    */
+    remote: {
+        // enable remote control
+        //remote: true,
 
-    <!-- Must be included AFTER reveal.js -->
-    <script src="http://your-server.org:8080/s/socket.io.js"></script>
-    <script src="http://your-server.org/slides.js"></script>
+        // enable multiplexing
+        //multiplex: true,
+
+        // server address
+        // change this if you do not serve the presentation from the same domain
+        // example: https://presentations.jowisoftware.de
+        //server: window.location.protocol + "//" + window.location.host + "/",
+
+        // path to socket.io
+        // change this if the basepath of the server is not "/"
+        //path: "/socket.io",
+
+        // url of the presentation to share
+        //shareUrl: window.location.href
+    },
+
+    dependencies: [
+        // ...
+
+        /*
+            reveal.js-remote:
+            The next two dependencies are required!
+            If you do not serve the presentations from the presentations/-folder give the full servername here, e.g.
+
+            https://presentations.jowisoftware.de/soket.io/socket.io.js and
+
+            https://presentations.jowisoftware.de/_remote/plugin.js_
+        */
+        { src: '../socket.io/socket.io.js', async: true },
+        { src: '../_remote/plugin.js', async: true },
+    ]
+});
+
 ```
 
-While presenting, press `shift-r`!
+While presenting, press `r` and scan the QR-Code to get the remote control or press `a` to share the presentation.
 
-### Sources
+### Resuming a presentation
 
-The swipe detection is adopted from [marcandre's detect_swipe](https://github.com/marcandre/detect_swipe)
+When a presentation is reloaded in the browser (both, presenter or audience), the presentation is resumed normally.
+
+However, if the server is restarted, resuming is only possible if a constant hash secret (`-a` or `PRESENTATION_HASH_SECRET`) is provided.
+If this parameter is not given, a random secret is generated and the presentation cannot be resumed.
+
+### Example: Running as a docker container behind an nginx reverse proxy
+
+You can easily put the app behind a reverse proxy. First, start the docker container like this:
+
+```bash
+docker container run \
+    -d \
+    -v /var/presentations:/presentations \
+    -p 127.0.0.1:8811:8080 \
+    --name revealjs-presentations \
+    jochenwierum/revealjs-presentations
+```
+
+Then configure your nginx (which hopefully also terminates your tls-connection) as reverse proxy:
+
+```nginx
+map $http_upgrade $connection_upgrade {
+    default upgrade;
+    ''      close;
+}
+
+server {
+    server_name presentations.example.org;
+
+    location / {
+        proxy_pass                         http://127.0.0.1:8811/;
+        proxy_http_version                 1.1;
+        proxy_set_header Upgrade           $http_upgrade;
+        proxy_set_header Connection        $connection_upgrade;
+        proxy_set_header Host              $http_host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+## Sources
+
+The swipe detection is adopted from [marcandre's detect_swipe](https://github.com/marcandre/detect_swipe).  
+Icons are [CC BY](https://iconsrepo.com/licensing/) from [iconsrepo](https://iconsrepo.com).
