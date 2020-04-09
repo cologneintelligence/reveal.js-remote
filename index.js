@@ -10,6 +10,9 @@ const qr = require("qr-image");
 const socketIo = require("socket.io");
 const uuid = require("uuid/v4");
 
+const states = {};
+const multiplexes = {};
+
 const createImage = async (content) =>
   new Promise((resolve, reject) => {
     var chunks = [];
@@ -34,14 +37,14 @@ const initMaster = (socket, initialData, baseUrl, hashsecret) => {
   let multiplexId = null;
   let hash = null;
 
-  if (initialData.remoteId !== null && initialData.multiplexId !== null && initialData.hash !== null && 
+  if (initialData.remoteId !== null && initialData.multiplexId !== null && initialData.hash !== null &&
     mkHash(initialData.remoteId, initialData.multiplexId, hashsecret) === initialData.hash) {
-      remoteId = initialData.remoteId;
-      multiplexId = initialData.multiplexId;
-      hash = initialData.hash;
+    remoteId = initialData.remoteId;
+    multiplexId = initialData.multiplexId;
+    hash = initialData.hash;
   }
-  
-  if (remoteId === null)  {
+
+  if (remoteId === null) {
     remoteId = uuid();
     multiplexId = uuid();
     hash = mkHash(remoteId, multiplexId, hashsecret);
@@ -52,6 +55,11 @@ const initMaster = (socket, initialData, baseUrl, hashsecret) => {
   const remoteUrl = baseUrl + "_remote/?" + remoteId;
   const multiplexUrl = initialData.shareUrl.replace(/#.*/, "") +
     (initialData.shareUrl.indexOf("?") > 0 ? "&" : "?") + "remoteMultiplexId=" + multiplexId;
+
+  socket.on('disconnect', () => {
+    delete states[remoteId];
+    delete multiplexes[multiplexId];
+  });
 
   Promise.all([createImage(remoteUrl), createImage(multiplexUrl)])
     .then((base64) =>
@@ -65,15 +73,27 @@ const initMaster = (socket, initialData, baseUrl, hashsecret) => {
         multiplexImage: "data:image/png;base64," + base64[1]
       }));
 
-  socket.on("state_changed", function(data) {
+  socket.on("state_changed", function (data) {
+    if (!states.hasOwnProperty(remoteId)) {
+      states[remoteId] = {};
+    }
+
+    states[remoteId].state = data;
     socket.to("remote-" + remoteId).emit("state_changed", data);
   });
 
-  socket.on("notes_changed", function(data) {
+  socket.on("notes_changed", function (data) {
+    if (!states.hasOwnProperty(remoteId)) {
+      states[remoteId] = {};
+    }
+    states[remoteId].notes = data;
+
     socket.to("remote-" + remoteId).emit("notes_changed", data);
   });
 
-  socket.on("multiplex", function(data) {
+  socket.on("multiplex", function (data) {
+    multiplexes[multiplexId] = data;
+
     socket.to("multiplex-" + multiplexId).emit("multiplex", data);
   })
 };
@@ -83,6 +103,15 @@ const initRemoteControl = (socket, initialData) => {
   socket.join("remote-" + id);
   socket.to("master-" + id).emit("client_connected", {});
 
+  if (states.hasOwnProperty(initialData.id)) {
+    if (states[initialData.id].notes) {
+      socket.emit("notes_changed", states[initialData.id].notes);
+    }
+    if (states[initialData.id].state) {
+      socket.emit("state_changed", states[initialData.id].state);
+    }
+  }
+
   socket.on("command", (data) => {
     if (typeof data !== "undefined" && typeof data.command === "string") {
       socket.to("master-" + id).emit("command", {
@@ -91,6 +120,13 @@ const initRemoteControl = (socket, initialData) => {
     }
   });
 }
+
+const initSlave = (socket, data) => {
+  socket.join("multiplex-" + data.id);
+  if (multiplexes.hasOwnProperty(data.id)) {
+    socket.emit("multiplex", multiplexes[data.id]);
+  }
+};
 
 const initConnection = (socket, prefix, hashsecret, ssl) => {
   const host = socket.request.headers["x-forwarded-host"] || socket.request.headers["host"];
@@ -102,8 +138,16 @@ const initConnection = (socket, prefix, hashsecret, ssl) => {
         const url = proto + "://" + host + prefix;
         initMaster(socket, data, url, hashsecret);
       } else if (data.type === "slave") {
-        socket.join("multiplex-" + data.id);
+        if (!data.id) {
+          return;
+        }
+
+        initSlave(socket, data);
       } else if (data.type === "remote") {
+        if (!data.id) {
+          return;
+        }
+
         initRemoteControl(socket, data);
       }
     } catch (e) {
@@ -253,7 +297,7 @@ createServer(args, app).then(server => {
   app.use(prefix, express.static(args.presentationpath));
   app.get(prefix, (_req, res) => index(res, args.presentationpath));
 
-  const io = socketIo.listen(server, { path: args.basepath + "socket.io" });
+  const io = socketIo.listen(server, { path: args.basepath + "socket.io", cookie: false });
   io.sockets.on("connection", (socket) => initConnection(socket, prefix, args.hashsecret, args.ssl !== null));
 
   console.log("Serving with prefix " + args.basepath + " on port " + args.port + ", secret: " + args.hashsecret);

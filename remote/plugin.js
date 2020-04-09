@@ -161,6 +161,8 @@
       Reveal.addEventListener("overviewshown", sendRemoteState);
       Reveal.addEventListener("overviewhidden", sendRemoteState);
       Reveal.addEventListener("slidechanged", sendRemoteFullState);
+
+      sendRemoteFullState();
     }
 
     if (pluginConfig.multiplex) {
@@ -176,6 +178,8 @@
       Reveal.addEventListener("overviewshown", sendMultiplexState);
       Reveal.addEventListener("paused", sendMultiplexState);
       Reveal.addEventListener("resumed", sendMultiplexState);
+
+      sendMultiplexState();
     }
 
     if (window.localStorage) {
@@ -220,7 +224,6 @@
 
   function msgClientConnected() {
     div.style.display = "none";
-    sendRemoteFullState();
   }
 
   function msgSync(data) {
