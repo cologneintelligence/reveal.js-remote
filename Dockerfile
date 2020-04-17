@@ -9,4 +9,5 @@ RUN mkdir /presentations
 ENV PRESENTATION_PRESENTATION_PATH /presentations
 COPY . .
 
+USER 65534
 CMD ["node", "/app/index.js"]
