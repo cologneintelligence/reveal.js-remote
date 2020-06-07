@@ -2,7 +2,7 @@
 
 ## Demo
 
-A [demo](https://presentations.jowisoftware.de/demo/) is available from.
+A [demo](https://presentations.jowisoftware.de/demo/) is available here.
 
 ## Using the tool
 
@@ -24,55 +24,89 @@ The default port is 8080. Append "--help" for more information.
 
 ### Client side
 
-Include the following codeblock into your presentation's configuration:
+First, include the dependencies. On Reveal.js 4x. use the following code:
+
+```html
+    <!--
+        reveal.js-remote:
+        The next two dependencies are required!
+        If you do not serve the presentations from the presentations/-folder
+        give the full servername here, e.g.
+
+        https://presentations.jowisoftware.de/soket.io/socket.io.js and
+        https://presentations.jowisoftware.de/_remote/plugin.js_
+    -->
+    <script src="../socket.io/socket.io.js"></script>
+    <script src="../_remote/plugin.js"></script>
+```
+
+Next, load the plugin as usual:
 
 ```javascript
     Reveal.initialize({
-    // ...
-    /*
-        reveal.js-remote:
-        optional configuration (with default values)
-    */
-    remote: {
-        // enable remote control
-        //remote: true,
-
-        // enable multiplexing
-        //multiplex: true,
-
-        // server address
-        // change this if you do not serve the presentation from the same domain
-        // example: https://presentations.jowisoftware.de
-        //server: window.location.protocol + "//" + window.location.host + "/",
-
-        // path to socket.io
-        // change this if the basepath of the server is not "/"
-        //path: "/socket.io",
-
-        // url of the presentation to share
-        //shareUrl: window.location.href
-    },
-
-    dependencies: [
-        // ...
-
-        /*
-            reveal.js-remote:
-            The next two dependencies are required!
-            If you do not serve the presentations from the presentations/-folder give the full servername here, e.g.
-
-            https://presentations.jowisoftware.de/soket.io/socket.io.js and
-
-            https://presentations.jowisoftware.de/_remote/plugin.js_
-        */
-        { src: '../socket.io/socket.io.js', async: true },
-        { src: '../_remote/plugin.js', async: true },
-    ]
-});
-
+        // …
+        plugins: [ /* other, plugins, e.g. RevealMarkdown */, RevealRemote ]
+        // –
+    });
 ```
 
-While presenting, press `r` and scan the QR-Code to get the remote control or press `a` to share the presentation.
+On Reveal.js v 3.x, include the scripts as dependencies instead:
+
+```javascript
+    Reveal.initialize({
+        // …
+        dependencies: [
+            // …
+
+            /*
+                reveal.js-remote:  
+                The next two dependencies are required!
+                If you do not serve the presentations from the presentations/-folder
+                give the full servername here, e.g.
+
+                https://presentations.jowisoftware.de/soket.io/socket.io.js and
+                https://presentations.jowisoftware.de/_remote/plugin.js_
+            */
+            { src: '../socket.io/socket.io.js', async: true },
+            { src: '../_remote/plugin.js', async: true },
+        ]
+        // …
+    });
+```
+
+In both versions, include the following code block into your presentation's configuration to fine-tune the plugin:
+
+```javascript
+    Reveal.initialize({
+        // …
+        /*
+            reveal.js-remote:
+            optional configuration (with default values)
+        */
+        remote: {
+            // enable remote control
+            //remote: true,
+
+            // enable multiplexing
+            //multiplex: true,
+
+            // server address
+            // change this if you do not serve the presentation from the same domain
+            // example: https://presentations.jowisoftware.de
+            //server: window.location.protocol + "//" + window.location.host + "/",
+
+            // path to socket.io
+            // change this if the basepath of the server is not "/"
+            //path: "/socket.io",
+
+            // url of the presentation to share
+            //shareUrl: window.location.href
+        }
+        // …
+    });
+```
+
+While presenting, press `r` („Remote“) and scan the QR-Code to get the remote control or press `a` („shAre“) to share the presentation.
 
 ### Resuming a presentation
 
