@@ -8,19 +8,19 @@ const commandLineUsage = require("command-line-usage");
 const express = require("express");
 const qr = require("qr-image");
 const socketIo = require("socket.io");
-const uuid = require("uuid/v4");
+const { v4: uuidv4 } = require('uuid');
 
 const states = {};
 const multiplexes = {};
 
 const createImage = async (content) =>
   new Promise((resolve, reject) => {
-    var chunks = [];
+    const chunks = [];
 
     const stream = qr.image(content);
     stream.on("data", (chunk) => chunks.push(chunk));
     stream.on("end", () => {
-      var result = Buffer.concat(chunks);
+      const result = Buffer.concat(chunks);
       resolve(result.toString("base64"));
     });
     stream.on("error", reject);
@@ -45,8 +45,8 @@ const initMaster = (socket, initialData, baseUrl, hashsecret) => {
   }
 
   if (remoteId === null) {
-    remoteId = uuid();
-    multiplexId = uuid();
+    remoteId = uuidv4();
+    multiplexId = uuidv4();
     hash = mkHash(remoteId, multiplexId, hashsecret);
   }
 
@@ -160,12 +160,12 @@ const index = async (res, path) => {
   fs.promises.readdir(path, { encoding: "utf-8" })
     .then(files => {
       const list = "<li>" +
-        files.map(file => '<a href="' + encodeURI(file) + '/">' + file.replace(/[\u00A0-\u9999<>\&]/g, i => "&#" + i.charCodeAt(0) + ";") + "</a>")
+        files.map(file => '<a href="' + encodeURI(file) + '/">' + file.replace(/[\u00A0-\u9999<>&"']/g, i => "&#" + i.charCodeAt(0) + ";") + "</a>")
           .join("</li><li>") +
         "</li>";
 
       res.set("Content-Type", "text/html");
-      res.send("<!DOCTYPE html><html><head><title>Directory Listing</title></head><ul>" + list + "</ul>");
+      res.send("<!DOCTYPE html><html lang='en'><head><title>Directory Listing</title></head><ul>" + list + "</ul>");
     })
     .catch(e => {
       console.warn("Unable to build directory listing:", e);
@@ -239,7 +239,7 @@ const parseArgs = () => {
       name: "hashsecret",
       alias: "a",
       typeLabel: "{unterline string}",
-      defaultValue: process.env.PRESENTATION_HASH_SECRET || uuid(),
+      defaultValue: process.env.PRESENTATION_HASH_SECRET || uuidv4(),
       description: "A secret which is used to resume a session after the presentation is reloaded (default: a random value, env: PRESENTATION_PRESENTATION_PATH)"
     },
     {
@@ -297,7 +297,9 @@ createServer(args, app).then(server => {
   app.use(prefix, express.static(args.presentationpath));
   app.get(prefix, (_req, res) => index(res, args.presentationpath));
 
-  const io = socketIo.listen(server, { path: args.basepath + "socket.io", cookie: false });
+  console.log(socketIo)
+
+  const io = socketIo(server, { path: args.basepath + "socket.io", cookie: false });
   io.sockets.on("connection", (socket) => initConnection(socket, prefix, args.hashsecret, args.ssl !== null));
 
   console.log("Serving with prefix " + args.basepath + " on port " + args.port + ", secret: " + args.hashsecret);
