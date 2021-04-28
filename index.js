@@ -297,8 +297,6 @@ createServer(args, app).then(server => {
   app.use(prefix, express.static(args.presentationpath));
   app.get(prefix, (_req, res) => index(res, args.presentationpath));
 
-  console.log(socketIo)
-
   const io = socketIo(server, { path: args.basepath + "socket.io", cookie: false });
   io.sockets.on("connection", (socket) => initConnection(socket, prefix, args.hashsecret, args.ssl !== null));
 

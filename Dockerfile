@@ -1,4 +1,4 @@
-FROM node:lts-slim
+FROM node:15.14.0-alpine3.13
 
 WORKDIR /app
 COPY package.json package-lock.json ./
