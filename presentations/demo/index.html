@@ -77,6 +77,13 @@
 					</p>
 				</section>
 
+				<section data-visibility="hidden">
+					<h2>Hidden Slides</h2>
+					<p>
+						This slide is visible in the source, but hidden when the presentation is viewed. You can show all hidden slides by setting the `showHiddenSlides` config option to `true`.
+					</p>
+				</section>
+
 				<section data-auto-animate>
 					<h2 data-id="code-title">Pretty Code</h2>
 					<pre data-id="code-animation"><code class="hljs" data-trim data-line-numbers>
@@ -95,19 +102,19 @@
 
 				<section data-auto-animate>
 					<h2 data-id="code-title">With animations</h2>
-					<pre data-id="code-animation"><code class="hljs" data-trim data-line-numbers="|4,8-11|17|22-24">
+					<pre data-id="code-animation"><code class="hljs" data-trim data-line-numbers="|4,8-11|17|22-24"><script type="text/template">
 						import React, { useState } from 'react';
 
 						function Example() {
 						  const [count, setCount] = useState(0);
 
 						  return (
-						    &lt;div&gt;
-						      &lt;p&gt;You clicked {count} times&lt;/p&gt;
-						      &lt;button onClick={() =&gt; setCount(count + 1)}&gt;
+						    <div>
+						      <p>You clicked {count} times</p>
+						      <button onClick={() => setCount(count + 1)}>
 						        Click me
-						      &lt;/button&gt;
-						    &lt;/div&gt;
+						      </button>
+						    </div>
 						  );
 						}
 
@@ -115,15 +122,15 @@
 						  const [count, setCount] = useState(0);
 
 						  return (
-						    &lt;div&gt;
-						      &lt;p&gt;You clicked {count} times&lt;/p&gt;
-						      &lt;button onClick={() =&gt; setCount(count + 1)}&gt;
+						    <div>
+						      <p>You clicked {count} times</p>
+						      <button onClick={() => setCount(count + 1)}>
 						        Click me
-						      &lt;/button&gt;
-						    &lt;/div&gt;
+						      </button>
+						    </div>
 						  );
 						}
-					</code></pre>
+					</script></code></pre>
 				</section>
 
 				<section>
@@ -177,17 +184,22 @@
 						## Markdown support
 
 						Write content using inline or external Markdown.
-						Instructions and more info available in the [readme](https://revealjs.com/markdown/).
+						Instructions and more info available in the [docs](https://revealjs.com/markdown/).
 
 						```[]
 						<section data-markdown>
 						  ## Markdown support
 
 						  Write content using inline or external Markdown.
-						  Instructions and more info available in the [readme](https://revealjs.com/markdown/).
+						  Instructions and more info available in the [docs](https://revealjs.com/markdown/).
 						</section>
 						```
 					</script>
+				</section>
+
+				<section>
+					<p>Add the <code>r-fit-text</code> class to auto-size text</p>
+					<h2 class="r-fit-text">FIT TEXT</h2>
 				</section>
 
 				<section>
@@ -444,14 +456,14 @@ Reveal.on( 'customevent', function() {
 		<script src="plugin/search/search.js"></script>
 		<script src="plugin/markdown/markdown.js"></script>
 		<script src="plugin/highlight/highlight.js"></script>
-		
+
 		<!--
 		reveal.js-remote:
 		the next two dependencies are required
 		-->
 		<script src="../socket.io/socket.io.js"></script>
 		<script src="../_remote/plugin.js"></script>
-		
+
 		<script>
 
 			// Also available as an ES module, see:
@@ -468,7 +480,7 @@ Reveal.on( 'customevent', function() {
 				*/
 				remote: {
 					// enable remote control
-					remote: true, 
+					remote: true,
 
 					// enable multiplexing
 					multiplex: true,
@@ -476,7 +488,7 @@ Reveal.on( 'customevent', function() {
 					// server address
 					// change this if you do not serve the presentation from the same domain
 					// example: https://presentations.jowisoftware.de
-					server: window.location.protocol + "//" + window.location.host + "/", 
+					server: window.location.protocol + "//" + window.location.host + "/",
 
 					// path to socket.io
 					// change this if the basepath of the server is not "/"
