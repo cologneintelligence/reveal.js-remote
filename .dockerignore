@@ -5,3 +5,7 @@ node_modules
 presentations
 LICENSE
 *.md
+Dockerfile
+.dockerignore
+.dcignore
+.gitignore
