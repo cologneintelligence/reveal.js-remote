@@ -108,6 +108,31 @@ In both versions, include the following code block into your presentation's conf
 
 While presenting, press `r` („Remote“) and scan the QR-Code to get the remote control or press `a` („shAre“) to share the presentation.
 
+### Zooming in presentations
+
+Reveal's zoom-Plugin does not emit any events. This is why changes cannot be tracked and synchronized to the audience.
+
+However, thanks to [l-jonas](https://github.com/l-jonas) this plugin now ships with a custom zoom functionality.
+To enable this plugin, include an additional Javascript:
+
+```html
+    <script src="../socket.io/socket.io.js"></script>
+    <script src="../_remote/plugin.js"></script>
+    <!-- this line is new: -->
+    <script src="../_remote/remotezoom.js"></script>
+```
+
+Then, load the plugin as usual:
+
+```javascript
+    Reveal.initialize({
+      // … other initialization …
+      plugins: [ RevealRemoteZoom, RevealRemote /*, OtherPlugins… */ ]
+    });
+```
+
+You can now do a synchronized zoom by double-clicking on any element in the presentation.
+
 ### Resuming a presentation
 
 When a presentation is reloaded in the browser (both, presenter or audience), the presentation is resumed normally.
