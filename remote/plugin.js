@@ -186,6 +186,8 @@
           reveal.addEventListener("overviewshown", sendMultiplexState);
           reveal.addEventListener("paused", sendMultiplexState);
           reveal.addEventListener("resumed", sendMultiplexState);
+          reveal.addEventListener("enable-zoom", sendMultiplexState);
+          reveal.addEventListener("disable-zoom", sendMultiplexState);
 
           sendMultiplexState();
         }
@@ -227,7 +229,11 @@
 
 
       function sendMultiplexState() {
-        socket.emit("multiplex", { state: reveal.getState() });
+        var state = reveal.getState();
+        var zoomPlugin = reveal.getPlugin("remote-zoom");
+        var zoom = zoomPlugin ? zoomPlugin.getCurrentZoom() : null;
+
+        socket.emit("multiplex", { state: state, zoom: zoom });
       }
 
       function msgClientConnected() {
@@ -235,7 +241,11 @@
       }
 
       function msgSync(data) {
+        var zoomPlugin = reveal.getPlugin("remote-zoom");
+
         reveal.setState(data.state);
+
+        if (zoomPlugin) { zoomPlugin.setCurrentZoom(data.zoom); }
       }
 
       function on(cmd, fn) {
