@@ -65,7 +65,7 @@ const RevealRemoteZoom = () => {
         console.warn('invalid focus parameter for applyZoom()'); return
       }
 
-      const transform = 'scale(200%) translate(' + (50 - focus.x) + '%, ' + (50 - focus.y) + '%)'
+      const transform = 'scale(2) translate(' + (50 - focus.x) + '%, ' + (50 - focus.y) + '%)'
 
       currentSlideElement.style.transform = transform
       currentZoom = focus
