@@ -238,7 +238,7 @@ const parseArgs = () => {
     {
       name: "hashsecret",
       alias: "a",
-      typeLabel: "{unterline string}",
+      typeLabel: "{underline string}",
       defaultValue: process.env.PRESENTATION_HASH_SECRET || uuidv4(),
       description: "A secret which is used to resume a session after the presentation is reloaded (default: a random value, env: PRESENTATION_PRESENTATION_PATH)"
     },
