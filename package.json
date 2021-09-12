@@ -4,7 +4,7 @@
   "author": "Jochen Wierum, Cologne Intelligence GmbH",
   "license": "MIT",
   "dependencies": {
-    "command-line-args": "^5.1.1",
+    "command-line-args": "^5.1.3",
     "command-line-usage": "^6.1.1",
     "express": "^4.17.1",
     "qr-image": "^3.2.0",
