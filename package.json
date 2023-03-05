@@ -5,14 +5,17 @@
   "license": "MIT",
   "dependencies": {
     "command-line-args": "^5.2.1",
-    "command-line-usage": "^6.1.3",
+    "command-line-usage": "^6.1.0",
     "express": "^4.18.2",
     "qr-image": "^3.2.0",
-    "socket.io": "^4.5.3",
+    "socket.io": "^4.6.1",
     "uuid": "^9.0.0"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/cologneintelligence/reveal.js-remote.git"
+  },
+  "volta": {
+    "node": "18.14.2"
   }
 }

@@ -1,9 +1,9 @@
-FROM node:16.15.0-alpine3.14
+FROM node:18.14.2-alpine3.17
 
 WORKDIR /app
 COPY package.json package-lock.json ./
 
-RUN npm install
+RUN npm ci
 
 RUN mkdir /presentations
 ENV PRESENTATION_PRESENTATION_PATH /presentations
