@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>Reveal.js Remote</title>
+
+    <meta name="description" content="Reveal.js Remote">
+    <meta name="author" content="Jochen Wierum">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="dist/reset.css">
+    <link rel="stylesheet" href="dist/reveal.css">
+    <link rel="stylesheet" href="dist/theme/black.css" id="theme">
+</head>
+
+<body>
+
+<div class="reveal">
+    <div class="slides">
+        <section>
+            <section>
+                <h1>Reveal.js Remote</h1>
+            </section>
+        </section>
+
+        <section>
+            <section>
+                <h2>Sharing a presentation</h2>
+
+                <ul>
+                    <li>Press <kbd>a</kbd> to get a share URL for the <strong>a</strong>udience</li>
+                    <li>Open that link as often as you want</li>
+                    <li>When the presenter changes the slides, the followers are updated</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>Sharing a presentation</h2>
+
+                <ul>
+                    <li>Sharing requires that the follower have access to the presentation</li>
+                    <li>The Node.js server that syncs the presentations can also host them!</li>
+                </ul>
+            </section>
+        </section>
+
+        <section>
+            <section>
+                <h2>Controlling a presentation</h2>
+
+                <ul>
+                    <li>Press <kbd>R</kbd> (<strong>s</strong>hare) to get a control URL</li>
+                    <li>Do <em>not</em> share that url with the audience!</li>
+                    <li>Open the URL on a smartphone</li>
+                    <li>You can see the speaker notes and presentation controls on that second screen</li>
+                </ul>
+
+                <aside class="notes">
+                    Speaker notes are transferred to the second screen!
+                </aside>
+            </section>
+        </section>
+    </div>
+</div>
+
+<script src="./dist/reveal.js"></script>
+<script src="/socket.io/socket.io.min.js"></script>
+<script src="/_remote/plugin/remote.js"></script>
+<script src="/_remote/plugin/remotezoom.js"></script>
+<script>
+    Reveal.initialize({
+        controls: true,
+        progress: true,
+        center: true,
+        hash: true,
+
+        transition: 'slide',
+
+        /*
+            reveal.js-remote:
+            optional configuration (with default values)
+        */
+        remote: {
+            // enable remote control
+            remote: true,
+
+            // enable multiplexing
+            multiplex: true,
+
+            // server address
+            // change this if you do not serve the presentation from the same domain
+            // example: https://presentations.jowisoftware.de
+            server: window.location.protocol + "//" + window.location.host,
+
+            // path to socket.io
+            // change this if the basepath of the server is not "/"
+            path: "/socket.io",
+
+            // url of the presentation to share
+            shareUrl: window.location.href
+        },
+
+        plugins: [RevealRemoteZoom, RevealRemote]
+    });
+</script>
+
+</body>
+</html>

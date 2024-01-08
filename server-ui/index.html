@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Remote Control</title>
+    <link rel="stylesheet" href="./remote.css" type="text/css" />
+</head>
+
+<body class="collapsed">
+
+    <div id="notes">
+        (Connecting...)
+    </div>
+
+    <div>
+        <div id="progress"></div>
+    </div>
+
+    <a class="show-button" href="#" onclick="slideControl.showMenu(); return false;">
+        <img src="./menu.svg" alt="menu">
+    </a>
+
+    <div class="buttons">
+		<div class="arrows">
+			<span>&nbsp;</span>
+			<a href="#" id="up" onclick="slideControl.up(); return false;">
+				<img src="./arrow.svg" style="transform: rotate(0.5turn)" alt="up">
+			</a>
+			<span>&nbsp;</span>
+			<a href="#" id="next" onclick="slideControl.next(); return false;">
+				<img src="./next.svg" alt="next">
+			</a>
+
+			<a href="#" id="left" onclick="slideControl.left(); return false;">
+				<img src="./arrow.svg" style="transform: rotate(0.25turn)" alt="left">
+			</a>
+			<span>&nbsp;</span>
+			<a href="#" id="right" onclick="slideControl.right(); return false;">
+				<img src="./arrow.svg" style="transform: rotate(0.75turn)" alt="right">
+			</a>
+			<a href="#" id="prev" onclick="slideControl.prev(); return false;">
+				<img src="./next.svg" style="rotate: 180deg;" alt="previous">
+			</a>
+
+			<span>&nbsp;</span>
+			<a href="#" id="down" onclick="slideControl.down(); return false;">
+				<img src="./arrow.svg" alt="down">
+			</a>
+			<span>&nbsp;</span>
+			<a href="#" id="pause" onclick="slideControl.pause(); return false;">
+				<img src="./off-on.svg" class="hidden-active" alt="pause (pressed)">
+				<img src="./off.svg" class="shown-active" alt="pause">
+			</a>
+
+			<a href="#" id="overview" onclick="slideControl.overview(); return false;">
+				<img src="./browse-on.svg" class="hidden-active" alt="browse (pressed)">
+				<img src="./browse.svg" class="shown-active" alt="browse">
+			</a>
+			<a href="#" id="autoslide" onclick="slideControl.autoslide(); return false;">
+				<img src="./play-on.svg" class="hidden-active" alt="autoplay (pressed)">
+				<img src="./play.svg" class="shown-active" alt="autoplay">
+			</a>
+			<span>&nbsp;</span>
+			<a href="#" class="hide-button" onclick="slideControl.hideMenu(); return false;">
+				<img src="./menu.svg" alt="menu">
+			</a>
+		</div>
+
+		<div class="copyright">
+			<span>
+				Icons are <a href="https://iconsrepo.com/licensing/" target="_blank">CC BY</a> from <a href="https://iconsrepo.com" target="_blank">iconsrepo</a>.
+			</span>
+		</div>
+    </div>
+
+    <script type="module" src="./ui.js"></script>
+</body>
+</html>
