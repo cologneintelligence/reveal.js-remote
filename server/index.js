@@ -10,6 +10,7 @@ import {default as express} from "express";
 import {Server} from "socket.io";
 import {toDataURL} from "qrcode";
 import {v4 as uuidv4} from "uuid";
+import {default as cors} from "cors";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -238,6 +239,13 @@ const parseArgs = () => {
             description: "A secret which is used to resume a session after the presentation is reloaded (default: a random value, env: PRESENTATION_PRESENTATION_PATH)"
         },
         {
+            name: "origin",
+            alias: "o",
+            typeLabel: "{underline string}",
+            defaultValue: process.env.PRESENTATION_CORS_ORIGIN || null,
+            description: "Comma separated list of allowed origins; use '*' to allow all origins (default: none, env: PRESENTATION_CORS_ORIGIN)"
+        },
+        {
             name: "help",
             alias: "h",
             description: "Displays this help"
@@ -288,11 +296,20 @@ const app = express();
 
 createServer(args, app).then(server => {
     const prefix = args.basepath;
+
+    const corsOptions = (args.origin != null) ?
+        {origin: (args.origin === '*') ? true : args.origin.split(/\s*,\s/)}
+        : undefined;
+
+    if (corsOptions) {
+        app.use(cors(corsOptions));
+    }
+
     app.use(prefix + "_remote/", express.static(__dirname + "/static"));
     app.use(prefix, express.static(args.presentationpath));
     app.get(prefix, (_req, res) => index(res, args.presentationpath));
 
-    const io = new Server(server, {path: args.basepath + "socket.io", cookie: false});
+    const io = new Server(server, {path: args.basepath + "socket.io", cookie: false, cors: corsOptions});
     io.sockets.on("connection", (socket) => initConnection(socket, prefix, args.hashsecret, args.ssl !== null));
 
     console.log("Serving with prefix " + args.basepath + " on port " + args.port + ", secret: " + args.hashsecret);

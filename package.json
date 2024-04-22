@@ -14,6 +14,7 @@
   "dependencies": {
     "command-line-args": "^5.2.1",
     "command-line-usage": "^7.0.1",
+    "cors": "^2.8.5",
     "express": "^4.19.2",
     "socket.io": "^4.7.5",
     "qrcode": "^1.5.3",
