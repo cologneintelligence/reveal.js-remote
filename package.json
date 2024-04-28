@@ -29,6 +29,6 @@
     "@rollup/plugin-terser": "^0.4.4",
     "core-js": "^3.37.0",
     "gulp": "^5.0.0",
-    "rollup": "^4.16.2"
+    "rollup": "^4.17.0"
   }
 }
