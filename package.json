@@ -8,26 +8,26 @@
     "url": "https://github.com/cologneintelligence/reveal.js-remote.git"
   },
   "volta": {
-    "node": "20.10.0"
+    "node": "20.17.0"
   },
   "type": "module",
   "dependencies": {
-    "command-line-args": "^5.2.1",
-    "command-line-usage": "^7.0.1",
+    "command-line-args": "^6.0.0",
+    "command-line-usage": "^7.0.3",
     "cors": "^2.8.5",
-    "express": "^4.19.2",
-    "socket.io": "^4.7.5",
-    "qrcode": "^1.5.3",
-    "uuid": "^9.0.1"
+    "express": "^4.21.0",
+    "socket.io": "^4.8.0",
+    "qrcode": "^1.5.4",
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.24.4",
-    "@babel/preset-env": "^7.24.4",
+    "@babel/core": "^7.25.2",
+    "@babel/preset-env": "^7.25.4",
     "@rollup/plugin-babel": "^6.0.4",
-    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-commonjs": "^26.0.1",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-terser": "^0.4.4",
-    "core-js": "^3.37.0",
+    "core-js": "^3.38.1",
     "gulp": "^5.0.0",
     "rollup": "^4.17.0"
   }
