@@ -312,6 +312,10 @@ createServer(args, app).then(server => {
     const io = new Server(server, {path: args.basepath + "socket.io", cookie: false, cors: corsOptions});
     io.sockets.on("connection", (socket) => initConnection(socket, prefix, args.hashsecret, args.ssl !== null));
 
+    ['SIGHUP', 'SIGINT', 'SIGTERM'].forEach(signal =>
+        process.on(signal, () => { io.close(); })
+    );
+
     console.log("Serving with prefix " + args.basepath + " on port " + args.port + ", secret: " + args.hashsecret);
     console.log("Server presentations from " + args.presentationpath);
     console.log("Server started.")
