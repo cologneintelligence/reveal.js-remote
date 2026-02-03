@@ -2,12 +2,11 @@ import * as io from '../../socket.io/socket.io.esm.min.js';
 
 window.slideControl = window.slideControl || (function () {
     let socket;
+    let allowSwipe = true;
 
     function init() {
         const path = window.location.pathname.replace(/\/_remote\/ui\/[^\/]*(?:\?.*)?$/, '/socket.io'),
             id = window.location.search.substring(1);
-
-        console.log(path, id);
 
         setupSwipe();
 
@@ -51,6 +50,7 @@ window.slideControl = window.slideControl || (function () {
         });
 
         socket.on('state_changed', function (data) {
+            allowSwipe = data.allowSwipe;
             document.getElementById('progress').style.width = Math.floor(data.progress * 100) + '%';
 
             document.getElementById('next').className = data.isLastSlide ? 'disabled' : '';
@@ -90,6 +90,8 @@ window.slideControl = window.slideControl || (function () {
         const target = document.getElementById("notes");
 
         target.addEventListener('touchstart', function (e) {
+            if (!allowSwipe) return;
+
             if (e.touches.length === 1) {
                 startX = e.touches[0].pageX;
                 startY = e.touches[0].pageY;

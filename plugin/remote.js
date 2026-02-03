@@ -13,7 +13,8 @@ const init = (reveal) => {
         shareUrl: window.location.href,
         path: "/socket.io",
         multiplex: true,
-        remote: true
+        remote: true,
+        allowSwipe: true
     };
     let config;
 
@@ -235,7 +236,8 @@ const init = (reveal) => {
             indices: reveal.getIndices(),
             availableRoutes: reveal.availableRoutes(),
             autoslide: (typeof config.autoSlide === "number" && config.autoSlide > 0) &&
-                (typeof config.autoSlideStoppable !== "boolean" || !config.autoSlideStoppable)
+                (typeof config.autoSlideStoppable !== "boolean" || !config.autoSlideStoppable),
+            allowSwipe: pluginConfig.allowSwipe,
         });
     }
 

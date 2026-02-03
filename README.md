@@ -87,7 +87,10 @@ Include the following code block into your presentation's configuration to fine-
             //path: "/socket.io",
 
             // url of the presentation to share
-            //shareUrl: window.location.href
+            //shareUrl: window.location.href,
+            
+            // enable remote control via touch events
+            //allowSwipe: true
         }
         // …
     });
