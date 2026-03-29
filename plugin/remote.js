@@ -1,4 +1,5 @@
-import {io} from "../../socket.io/socket.io.esm.min.js";
+import { io } from "socket.io-client";
+
 
 const init = (reveal) => {
     let socket;
