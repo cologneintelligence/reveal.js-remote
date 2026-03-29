@@ -1,4 +1,5 @@
-import {io} from "../../socket.io/socket.io.esm.min.js";
+import { io } from "socket.io-client";
+
 
 const init = (reveal) => {
     let socket;
@@ -218,6 +219,9 @@ const init = (reveal) => {
     }
 
     function sendRemoteFullState() {
+        // Guard: Reveal may not have a current slide yet if init fires before
+        // deck.initialize() has finished navigating to the first slide.
+        if (!reveal.getCurrentSlide()) return;
         socket.emit("notes_changed", {
             text: reveal.getSlideNotes()
         });
