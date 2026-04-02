@@ -1,5 +1,10 @@
 import { io } from "socket.io-client";
 
+// Optional async hook called before each incoming multiplex state is applied.
+// Register via the plugin's onBeforeSync(fn) method.
+// Return false (or resolve to false) to suppress the state application.
+let beforeSyncHook = null;
+
 
 const init = (reveal) => {
     let socket;
@@ -282,12 +287,16 @@ const init = (reveal) => {
         }
     }
 
-    function msgSync(data) {
+    async function msgSync(data) {
         if (!reveal.isReady()) {
             // Buffer — Reveal hasn't finished initializing yet (controls DOM not
             // created). The ready listener above will apply the latest state.
             pendingMultiplexState = data;
             return;
+        }
+        if (beforeSyncHook) {
+            const proceed = await beforeSyncHook(data);
+            if (proceed === false) return;
         }
         applyMultiplexState(data);
     }
@@ -311,5 +320,8 @@ const init = (reveal) => {
 
 export default () => ({
     id: 'RevealRemote',
-    init: init
+    init: init,
+    // Register an async hook called before each incoming multiplex navigation is
+    // applied. Return false from the hook to suppress the state application.
+    onBeforeSync(fn) { beforeSyncHook = fn; }
 });

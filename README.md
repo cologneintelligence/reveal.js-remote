@@ -167,6 +167,43 @@ server {
 }
 ```
 
+## Advanced: intercepting multiplex navigation (onBeforeSync)
+
+The plugin exposes an `onBeforeSync` hook that lets host applications intercept incoming multiplex navigation events before they are applied to the follower's presentation state.
+
+```javascript
+const remotePlugin = deck.getPlugin('RevealRemote');
+
+remotePlugin.onBeforeSync(async (data) => {
+    // data.state  — the Reveal.js state about to be applied
+    // data.zoom   — the zoom state (if remotezoom plugin is active)
+
+    // Return false to suppress this navigation entirely.
+    // Return anything else (or nothing) to allow it through.
+
+    const shouldProceed = await someAsyncCheck();
+    if (!shouldProceed) return false;
+});
+```
+
+A common use case is deferring a hot-reload until the next slide change so that follower windows reload in sync with the presenter rather than immediately:
+
+```javascript
+let needsReload = false;
+
+// Mark reload pending whenever your build system signals a change.
+onBuildUpdate(() => { needsReload = true; });
+
+remotePlugin.onBeforeSync(async () => {
+    if (!needsReload) return;           // proceed normally
+    await fadeScreenToBlack();          // optional visual transition
+    location.reload();
+    return false;                       // suppress stale setState call
+});
+```
+
+Only one hook can be registered at a time; calling `onBeforeSync` again replaces the previous hook.
+
 ## Sources
 
 The swipe detection is adopted from [marcandre's detect_swipe](https://github.com/marcandre/detect_swipe).  
