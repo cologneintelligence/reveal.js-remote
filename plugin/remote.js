@@ -63,6 +63,16 @@ const init = (reveal) => {
         if (pluginConfig.multiplex && config.remoteMultiplexId !== undefined) {
             socket.on("multiplex", msgSync);
 
+            // If the server replays cached state before Reveal finishes initializing
+            // (controls DOM not yet created), setState crashes. Apply on ready instead.
+            reveal.addEventListener("ready", function() {
+                if (pendingMultiplexState) {
+                    const data = pendingMultiplexState;
+                    pendingMultiplexState = null;
+                    applyMultiplexState(data);
+                }
+            });
+
             reveal.configure({
                 controls: false,
                 keyboard: false,
@@ -262,14 +272,24 @@ const init = (reveal) => {
         div.style.display = "none";
     }
 
-    function msgSync(data) {
+    let pendingMultiplexState = null;
+
+    function applyMultiplexState(data) {
         const zoomPlugin = reveal.getPlugin("remote-zoom");
-
         reveal.setState(data.state);
-
         if (zoomPlugin) {
             zoomPlugin.setCurrentZoom(data.zoom);
         }
+    }
+
+    function msgSync(data) {
+        if (!reveal.isReady()) {
+            // Buffer — Reveal hasn't finished initializing yet (controls DOM not
+            // created). The ready listener above will apply the latest state.
+            pendingMultiplexState = data;
+            return;
+        }
+        applyMultiplexState(data);
     }
 
     function on(cmd, fn) {
