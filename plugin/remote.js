@@ -5,6 +5,9 @@ import { io } from "socket.io-client";
 // Return false (or resolve to false) to suppress the state application.
 let beforeSyncHook = null;
 
+let multiplexPaused = false;
+let _sendMultiplexStateRef = null;
+
 
 const init = (reveal) => {
     let socket;
@@ -266,6 +269,7 @@ const init = (reveal) => {
 
     function sendMultiplexState() {
         if (reveal.isOverview()) return;
+        if (multiplexPaused) return;
         const state = reveal.getState();
         const zoomPlugin = reveal.getPlugin("remote-zoom");
         const zoom = zoomPlugin ? zoomPlugin.getCurrentZoom() : null;
@@ -315,6 +319,7 @@ const init = (reveal) => {
         }
     }
 
+    _sendMultiplexStateRef = sendMultiplexState;
     init();
 };
 
@@ -323,5 +328,10 @@ export default () => ({
     init: init,
     // Register an async hook called before each incoming multiplex navigation is
     // applied. Return false from the hook to suppress the state application.
-    onBeforeSync(fn) { beforeSyncHook = fn; }
+    onBeforeSync(fn) { beforeSyncHook = fn; },
+    // Pause or resume outgoing multiplex broadcasts (slide sync to followers).
+    setMultiplexPaused(paused) { multiplexPaused = !!paused; },
+    isMultiplexPaused() { return multiplexPaused; },
+    // Force-send current state to followers immediately (useful on resume to re-sync).
+    sendCurrentState() { if (_sendMultiplexStateRef) _sendMultiplexStateRef(); }
 });
