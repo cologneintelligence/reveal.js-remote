@@ -23,7 +23,8 @@ const init = (reveal) => {
         path: "/socket.io",
         multiplex: true,
         remote: true,
-        allowSwipe: true
+        allowSwipe: true,
+        suppressInOverview: false
     };
     let config;
 
@@ -241,7 +242,7 @@ const init = (reveal) => {
         // Guard: Reveal may not have a current slide yet if init fires before
         // deck.initialize() has finished navigating to the first slide.
         if (!reveal.getCurrentSlide()) return;
-        if (reveal.isOverview()) return; 
+        if (pluginConfig.suppressInOverview && reveal.isOverview()) return;
         socket.emit("notes_changed", {
             text: reveal.getSlideNotes()
         });
@@ -249,7 +250,7 @@ const init = (reveal) => {
     }
 
     function sendRemoteState() {
-        if (reveal.isOverview()) return;
+        if (pluginConfig.suppressInOverview && reveal.isOverview()) return;
         socket.emit("state_changed", {
             isFirstSlide: reveal.isFirstSlide(),
             isLastSlide: reveal.isLastSlide(),
@@ -268,7 +269,7 @@ const init = (reveal) => {
 
 
     function sendMultiplexState() {
-        if (reveal.isOverview()) return;
+        if (pluginConfig.suppressInOverview && reveal.isOverview()) return;
         if (multiplexPaused) return;
         const state = reveal.getState();
         const zoomPlugin = reveal.getPlugin("remote-zoom");

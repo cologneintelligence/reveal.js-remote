@@ -90,7 +90,13 @@ Include the following code block into your presentation's configuration to fine-
             //shareUrl: window.location.href,
             
             // enable remote control via touch events
-            //allowSwipe: true
+            //allowSwipe: true,
+
+            // suppress broadcasting state to remotes/audience while the
+            // presenter is in Overview mode (press Escape/O to toggle).
+            // When true, navigating slides in the overview will not update
+            // the remote control or multiplex followers until overview is closed.
+            //suppressInOverview: false
         }
         // …
     });
