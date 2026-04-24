@@ -42,6 +42,10 @@ const init = (reveal) => {
             pluginConfig = extend(pluginConfig, config.remote);
         }
 
+        if (typeof pluginConfig.normalizeShareUrl === "function") {
+            pluginConfig.shareUrl = pluginConfig.normalizeShareUrl(pluginConfig.shareUrl);
+        }
+
         if (pluginConfig.multiplex === false && pluginConfig.remote === false) {
             return;
         }
