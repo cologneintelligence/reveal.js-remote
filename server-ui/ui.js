@@ -3,11 +3,34 @@ import * as io from '../../socket.io/socket.io.esm.min.js';
 window.slideControl = window.slideControl || (function () {
     let socket;
     let allowSwipe = true;
+    let slideUrl = null;
+
+    const ZOOM_STEP = 0.1;
+    const ZOOM_MIN = 0.4;
+    const ZOOM_MAX = 2.0;
+    let currentZoom = parseFloat(localStorage.getItem('remoteUiZoom') || '1');
+
+    function applyZoom() {
+        document.documentElement.style.zoom = currentZoom;
+    }
+
+    function zoomIn() {
+        currentZoom = Math.min(ZOOM_MAX, Math.round((currentZoom + ZOOM_STEP) * 10) / 10);
+        localStorage.setItem('remoteUiZoom', currentZoom);
+        applyZoom();
+    }
+
+    function zoomOut() {
+        currentZoom = Math.max(ZOOM_MIN, Math.round((currentZoom - ZOOM_STEP) * 10) / 10);
+        localStorage.setItem('remoteUiZoom', currentZoom);
+        applyZoom();
+    }
 
     function init() {
         const path = window.location.pathname.replace(/\/_remote\/ui\/[^\/]*(?:\?.*)?$/, '/socket.io'),
             id = window.location.search.substring(1);
 
+        applyZoom();
         setupKeyboard();
         setupSwipe();
 
@@ -48,6 +71,11 @@ window.slideControl = window.slideControl || (function () {
                 text = "(The current slide has no speaker notes)";
             }
             document.getElementById('notes').innerHTML = text;
+        });
+
+        socket.on('presentation_url', function (data) {
+            slideUrl = data.url;
+            document.getElementById('preview-toggle').style.display = 'block';
         });
 
         socket.on('state_changed', function (data) {
@@ -153,6 +181,24 @@ window.slideControl = window.slideControl || (function () {
         document.getElementsByTagName('body')[0].className = 'collapsed';
     }
 
+    function togglePreview() {
+        const preview = document.getElementById('preview');
+        const toggle = document.getElementById('preview-toggle');
+        if (preview.classList.contains('visible')) {
+            preview.classList.remove('visible');
+            toggle.classList.remove('active');
+        } else {
+            if (!preview.querySelector('iframe') && slideUrl) {
+                const iframe = document.createElement('iframe');
+                iframe.src = slideUrl;
+                iframe.allowFullscreen = true;
+                preview.appendChild(iframe);
+            }
+            preview.classList.add('visible');
+            toggle.classList.add('active');
+        }
+    }
+
     init();
 
     return {
@@ -167,5 +213,8 @@ window.slideControl = window.slideControl || (function () {
         autoslide: command("autoslide"),
         showMenu,
         hideMenu,
+        togglePreview,
+        zoomIn,
+        zoomOut,
     }
 })();

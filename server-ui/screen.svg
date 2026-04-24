@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Screen bezel -->
+  <rect x="4" y="6" width="92" height="62" rx="6" fill="none" stroke="white" stroke-width="8"/>
+  <!-- Stand stem -->
+  <rect x="44" y="68" width="12" height="14" fill="white"/>
+  <!-- Stand base -->
+  <rect x="24" y="82" width="52" height="9" rx="4" fill="white"/>
+</svg>

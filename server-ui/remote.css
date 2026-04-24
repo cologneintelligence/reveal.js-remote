@@ -39,25 +39,25 @@ a, a:link, a:active, a:hover, a:visited {
 
 @media screen and (orientation: portrait) {
 	.buttons {
-		width: 75vw;
-		height: calc(75vw + 25px);
+		width: min(75vw, 400px);
+		height: calc(min(75vw, 400px) + 25px);
 	}
 
 	.arrows {
-		width: 75vw;
-		height: 75vw;
+		width: min(75vw, 400px);
+		height: min(75vw, 400px);
 	}
 }
 
 @media screen and (orientation: landscape) {
 	.buttons {
-		width: 75vh;
-		height: calc(75vh + 25px);
+		width: min(75vh, 400px);
+		height: calc(min(75vh, 400px) + 25px);
 	}
 
 	.arrows {
-		width: 75vh;
-		height: 75vh;
+		width: min(75vh, 400px);
+		height: min(75vh, 400px);
 	}
 }
 
@@ -139,8 +139,130 @@ a, a:link, a:active, a:hover, a:visited {
 .buttons .copyright {
     font-size: 80%;
     color: #42affa;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 6px;
+    gap: 6px;
+}
+
+.buttons .copyright .attribution {
+    flex: 1;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .buttons .copyright a {
     display: inline;
+}
+
+.zoom-controls {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.zoom-btn {
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    line-height: 20px;
+    text-align: center;
+    border: 1px solid #666;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #d8d8d8;
+    background: #444;
+    user-select: none;
+}
+
+.zoom-btn:hover, .zoom-btn:focus {
+    background: #555;
+    color: #fff;
+}
+
+/* ── Slide preview ───────────────────────────────────────────── */
+
+.preview-toggle {
+    background-color: #222;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    display: none; /* shown via JS once the server sends a presentation URL */
+    padding: 4px;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+    z-index: 10;
+}
+
+.preview-toggle:hover,
+.preview-toggle:focus {
+    opacity: 1;
+}
+
+.preview-toggle img {
+    width: 28px;
+    height: 28px;
+    display: block;
+}
+
+.preview-toggle.active {
+    opacity: 1;
+    outline: 2px solid #42affa;
+    outline-offset: -2px;
+}
+
+#preview {
+    display: none;
+    background: #000;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Transparent overlay — blocks pointer events so the iframe never steals focus/keypresses */
+#preview::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+}
+
+#preview.visible {
+    display: block;
+}
+
+#preview iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+}
+
+/* Portrait (tall mobile): full-width banner above notes */
+@media screen and (orientation: portrait) {
+    #preview.visible {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        margin-bottom: 8px;
+    }
+}
+
+/* Landscape / desktop: float left, notes text wraps to the right */
+@media screen and (orientation: landscape) {
+    #preview.visible {
+        float: left;
+        width: 45%;
+        aspect-ratio: 16 / 9;
+        margin: 0 10px 10px 0;
+    }
+}
+
+/* Wider screens: slightly narrower preview so notes have more room */
+@media screen and (orientation: landscape) and (min-width: 1200px) {
+    #preview.visible {
+        width: 40%;
+    }
 }
