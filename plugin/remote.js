@@ -42,10 +42,6 @@ const init = (reveal) => {
             pluginConfig = extend(pluginConfig, config.remote);
         }
 
-        if (typeof pluginConfig.normalizeShareUrl === "function") {
-            pluginConfig.shareUrl = pluginConfig.normalizeShareUrl(pluginConfig.shareUrl);
-        }
-
         if (pluginConfig.multiplex === false && pluginConfig.remote === false) {
             return;
         }
@@ -119,7 +115,9 @@ const init = (reveal) => {
         if (config.remoteMultiplexId === undefined) {
             const data = {
                 type: "presenter",
-                shareUrl: pluginConfig.shareUrl
+                shareUrl: typeof pluginConfig.normalizeShareUrl === "function"
+                    ? pluginConfig.normalizeShareUrl(pluginConfig.shareUrl)
+                    : pluginConfig.shareUrl
             };
 
             if (window.localStorage) {
