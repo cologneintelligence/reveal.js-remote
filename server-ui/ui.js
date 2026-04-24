@@ -8,6 +8,7 @@ window.slideControl = window.slideControl || (function () {
         const path = window.location.pathname.replace(/\/_remote\/ui\/[^\/]*(?:\?.*)?$/, '/socket.io'),
             id = window.location.search.substring(1);
 
+        setupKeyboard();
         setupSwipe();
 
         socket = io.connect({path: path});
@@ -81,6 +82,23 @@ window.slideControl = window.slideControl || (function () {
         return function () {
             sendCommand(cmd);
         };
+    }
+
+    function setupKeyboard() {
+        document.addEventListener('keydown', function (e) {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+            switch (e.key) {
+                case 'ArrowRight': case 'l': case 'L': sendCommand('right');    e.preventDefault(); break;
+                case 'ArrowLeft':  case 'h': case 'H': sendCommand('left');     e.preventDefault(); break;
+                case 'ArrowUp':    case 'k': case 'K': sendCommand('up');       e.preventDefault(); break;
+                case 'ArrowDown':  case 'j': case 'J': sendCommand('down');     e.preventDefault(); break;
+                case ' ': case 'PageDown': case 'n': case 'N': sendCommand('next'); e.preventDefault(); break;
+                case 'p': case 'P': case 'PageUp': sendCommand('prev');         e.preventDefault(); break;
+                case '.': case 'b': case 'B': sendCommand('pause');             e.preventDefault(); break;
+                case 'o': case 'O': case 'Escape': sendCommand('overview');     e.preventDefault(); break;
+            }
+        });
     }
 
     function setupSwipe() {
