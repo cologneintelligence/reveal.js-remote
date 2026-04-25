@@ -47,12 +47,15 @@ gulp.task('plugins', () =>
                     }),
                     terser()
                 ],
-                external: ['../../socket.io/socket.io.esm.min.js'],
+                external: ['socket.io-client'],
             }).then(bundle => [
                 bundle.write({
                     file: `./dist/static/plugin/${plugin.file}.esm.js`,
                     name: plugin.name,
                     format: 'es',
+                    paths: {
+                        'socket.io-client': '../../socket.io/socket.io.esm.min.js',
+                    },
                 }),
 
                 bundle.write({
@@ -60,7 +63,7 @@ gulp.task('plugins', () =>
                     name: plugin.name,
                     format: 'iife',
                     globals: (file) => {
-                        if (file.endsWith("/socket.io/socket.io.esm.min.js"))
+                        if (file === 'socket.io-client')
                             return "io"
                         else
                             return file
