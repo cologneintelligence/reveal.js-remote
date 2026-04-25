@@ -9,8 +9,8 @@
   },
   "type": "module",
   "dependencies": {
-    "command-line-args": "^6.0.1",
-    "command-line-usage": "^7.0.3",
+    "command-line-args": "^6.0.2",
+    "command-line-usage": "^7.0.4",
     "cors": "^2.8.6",
     "express": "^5.2.1",
     "socket.io": "^4.8.3",
@@ -19,13 +19,13 @@
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",
-    "@babel/preset-env": "^7.29.0",
-    "@rollup/plugin-babel": "^6.1.0",
-    "@rollup/plugin-commonjs": "^29.0.0",
+    "@babel/preset-env": "^7.29.2",
+    "@rollup/plugin-babel": "^7.0.0",
+    "@rollup/plugin-commonjs": "^29.0.2",
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-terser": "^1.0.0",
-    "core-js": "^3.48.0",
+    "core-js": "^3.49.0",
     "gulp": "^5.0.1",
-    "rollup": "^4.59.0"
+    "rollup": "^4.60.2"
   }
 }
