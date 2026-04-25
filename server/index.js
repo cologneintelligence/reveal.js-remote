@@ -48,6 +48,9 @@ const initPresenter = (socket, initialData, baseUrl, hashsecret) => {
     const multiplexUrl = initialData.shareUrl.replace(/#.*/, "") +
         (initialData.shareUrl.indexOf("?") > 0 ? "&" : "?") + "remoteMultiplexId=" + multiplexId;
 
+    if (!states.hasOwnProperty(remoteId)) states[remoteId] = {};
+    states[remoteId].multiplexUrl = multiplexUrl;
+
     socket.on('disconnect', () => {
         delete states[remoteId];
         delete multiplexes[multiplexId];
@@ -101,6 +104,9 @@ const initRemoteControl = (socket, initialData) => {
         }
         if (states[initialData.id].state) {
             socket.emit("state_changed", states[initialData.id].state);
+        }
+        if (states[initialData.id].multiplexUrl) {
+            socket.emit("presentation_url", { url: states[initialData.id].multiplexUrl });
         }
     }
 

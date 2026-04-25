@@ -90,7 +90,13 @@ Include the following code block into your presentation's configuration to fine-
             //shareUrl: window.location.href,
             
             // enable remote control via touch events
-            //allowSwipe: true
+            //allowSwipe: true,
+
+            // suppress broadcasting state to remotes/audience while the
+            // presenter is in Overview mode (press Escape/O to toggle).
+            // When true, navigating slides in the overview will not update
+            // the remote control or multiplex followers until overview is closed.
+            //suppressInOverview: false
         }
         // …
     });
@@ -166,6 +172,43 @@ server {
     }
 }
 ```
+
+## Advanced: intercepting multiplex navigation (onBeforeSync)
+
+The plugin exposes an `onBeforeSync` hook that lets host applications intercept incoming multiplex navigation events before they are applied to the follower's presentation state.
+
+```javascript
+const remotePlugin = deck.getPlugin('RevealRemote');
+
+remotePlugin.onBeforeSync(async (data) => {
+    // data.state  — the Reveal.js state about to be applied
+    // data.zoom   — the zoom state (if remotezoom plugin is active)
+
+    // Return false to suppress this navigation entirely.
+    // Return anything else (or nothing) to allow it through.
+
+    const shouldProceed = await someAsyncCheck();
+    if (!shouldProceed) return false;
+});
+```
+
+A common use case is deferring a hot-reload until the next slide change so that follower windows reload in sync with the presenter rather than immediately:
+
+```javascript
+let needsReload = false;
+
+// Mark reload pending whenever your build system signals a change.
+onBuildUpdate(() => { needsReload = true; });
+
+remotePlugin.onBeforeSync(async () => {
+    if (!needsReload) return;           // proceed normally
+    await fadeScreenToBlack();          // optional visual transition
+    location.reload();
+    return false;                       // suppress stale setState call
+});
+```
+
+Only one hook can be registered at a time; calling `onBeforeSync` again replaces the previous hook.
 
 ## Sources
 

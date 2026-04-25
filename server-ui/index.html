@@ -9,6 +9,8 @@
 
 <body class="collapsed">
 
+    <div id="preview"></div>
+
     <div id="notes">
         (Connecting...)
     </div>
@@ -19,6 +21,10 @@
 
     <a class="show-button" href="#" onclick="slideControl.showMenu(); return false;">
         <img src="./menu.svg" alt="menu">
+    </a>
+
+    <a class="preview-toggle" id="preview-toggle" href="#" onclick="slideControl.togglePreview(); return false;">
+        <img src="./screen.svg" alt="toggle slide preview">
     </a>
 
     <div class="buttons">
@@ -68,9 +74,11 @@
 		</div>
 
 		<div class="copyright">
-			<span>
-				Icons are <a href="https://iconsrepo.com/licensing/" target="_blank">CC BY</a> from <a href="https://iconsrepo.com" target="_blank">iconsrepo</a>.
-			</span>
+			<div class="zoom-controls">
+				<a href="#" class="zoom-btn" onclick="slideControl.zoomOut(); return false;" title="Zoom out">−</a>
+				<a href="#" class="zoom-btn" onclick="slideControl.zoomIn(); return false;" title="Zoom in">+</a>
+			</div>
+			<span class="attribution">Icons: <a href="https://iconsrepo.com/licensing/" target="_blank">CC BY</a> <a href="https://iconsrepo.com" target="_blank">iconsrepo</a></span>
 		</div>
     </div>
 

@@ -3,11 +3,35 @@ import * as io from '../../socket.io/socket.io.esm.min.js';
 window.slideControl = window.slideControl || (function () {
     let socket;
     let allowSwipe = true;
+    let slideUrl = null;
+
+    const ZOOM_STEP = 0.1;
+    const ZOOM_MIN = 0.4;
+    const ZOOM_MAX = 2.0;
+    let currentZoom = parseFloat(localStorage.getItem('remoteUiZoom') || '1');
+
+    function applyZoom() {
+        document.documentElement.style.zoom = currentZoom;
+    }
+
+    function zoomIn() {
+        currentZoom = Math.min(ZOOM_MAX, Math.round((currentZoom + ZOOM_STEP) * 10) / 10);
+        localStorage.setItem('remoteUiZoom', currentZoom);
+        applyZoom();
+    }
+
+    function zoomOut() {
+        currentZoom = Math.max(ZOOM_MIN, Math.round((currentZoom - ZOOM_STEP) * 10) / 10);
+        localStorage.setItem('remoteUiZoom', currentZoom);
+        applyZoom();
+    }
 
     function init() {
         const path = window.location.pathname.replace(/\/_remote\/ui\/[^\/]*(?:\?.*)?$/, '/socket.io'),
             id = window.location.search.substring(1);
 
+        applyZoom();
+        setupKeyboard();
         setupSwipe();
 
         socket = io.connect({path: path});
@@ -49,6 +73,11 @@ window.slideControl = window.slideControl || (function () {
             document.getElementById('notes').innerHTML = text;
         });
 
+        socket.on('presentation_url', function (data) {
+            slideUrl = data.url;
+            document.getElementById('preview-toggle').style.display = 'block';
+        });
+
         socket.on('state_changed', function (data) {
             allowSwipe = data.allowSwipe;
             document.getElementById('progress').style.width = Math.floor(data.progress * 100) + '%';
@@ -81,6 +110,23 @@ window.slideControl = window.slideControl || (function () {
         return function () {
             sendCommand(cmd);
         };
+    }
+
+    function setupKeyboard() {
+        document.addEventListener('keydown', function (e) {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+            switch (e.key) {
+                case 'ArrowRight': case 'l': case 'L': sendCommand('right');    e.preventDefault(); break;
+                case 'ArrowLeft':  case 'h': case 'H': sendCommand('left');     e.preventDefault(); break;
+                case 'ArrowUp':    case 'k': case 'K': sendCommand('up');       e.preventDefault(); break;
+                case 'ArrowDown':  case 'j': case 'J': sendCommand('down');     e.preventDefault(); break;
+                case ' ': case 'PageDown': case 'n': case 'N': sendCommand('next'); e.preventDefault(); break;
+                case 'p': case 'P': case 'PageUp': sendCommand('prev');         e.preventDefault(); break;
+                case '.': case 'b': case 'B': sendCommand('pause');             e.preventDefault(); break;
+                case 'o': case 'O': case 'Escape': sendCommand('overview');     e.preventDefault(); break;
+            }
+        });
     }
 
     function setupSwipe() {
@@ -135,6 +181,24 @@ window.slideControl = window.slideControl || (function () {
         document.getElementsByTagName('body')[0].className = 'collapsed';
     }
 
+    function togglePreview() {
+        const preview = document.getElementById('preview');
+        const toggle = document.getElementById('preview-toggle');
+        if (preview.classList.contains('visible')) {
+            preview.classList.remove('visible');
+            toggle.classList.remove('active');
+        } else {
+            if (!preview.querySelector('iframe') && slideUrl) {
+                const iframe = document.createElement('iframe');
+                iframe.src = slideUrl;
+                iframe.allowFullscreen = true;
+                preview.appendChild(iframe);
+            }
+            preview.classList.add('visible');
+            toggle.classList.add('active');
+        }
+    }
+
     init();
 
     return {
@@ -149,5 +213,8 @@ window.slideControl = window.slideControl || (function () {
         autoslide: command("autoslide"),
         showMenu,
         hideMenu,
+        togglePreview,
+        zoomIn,
+        zoomOut,
     }
 })();

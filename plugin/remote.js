@@ -1,4 +1,13 @@
-import {io} from "../../socket.io/socket.io.esm.min.js";
+import { io } from "socket.io-client";
+
+// Optional async hook called before each incoming multiplex state is applied.
+// Register via the plugin's onBeforeSync(fn) method.
+// Return false (or resolve to false) to suppress the state application.
+let beforeSyncHook = null;
+
+let multiplexPaused = false;
+let _sendMultiplexStateRef = null;
+
 
 const init = (reveal) => {
     let socket;
@@ -14,7 +23,8 @@ const init = (reveal) => {
         path: "/socket.io",
         multiplex: true,
         remote: true,
-        allowSwipe: true
+        allowSwipe: true,
+        suppressInOverview: false
     };
     let config;
 
@@ -62,6 +72,16 @@ const init = (reveal) => {
         if (pluginConfig.multiplex && config.remoteMultiplexId !== undefined) {
             socket.on("multiplex", msgSync);
 
+            // If the server replays cached state before Reveal finishes initializing
+            // (controls DOM not yet created), setState crashes. Apply on ready instead.
+            reveal.addEventListener("ready", function() {
+                if (pendingMultiplexState) {
+                    const data = pendingMultiplexState;
+                    pendingMultiplexState = null;
+                    applyMultiplexState(data);
+                }
+            });
+
             reveal.configure({
                 controls: false,
                 keyboard: false,
@@ -95,7 +115,9 @@ const init = (reveal) => {
         if (config.remoteMultiplexId === undefined) {
             const data = {
                 type: "presenter",
-                shareUrl: pluginConfig.shareUrl
+                shareUrl: typeof pluginConfig.normalizeShareUrl === "function"
+                    ? pluginConfig.normalizeShareUrl(pluginConfig.shareUrl)
+                    : pluginConfig.shareUrl
             };
 
             if (window.localStorage) {
@@ -217,7 +239,12 @@ const init = (reveal) => {
         }
     }
 
+
     function sendRemoteFullState() {
+        // Guard: Reveal may not have a current slide yet if init fires before
+        // deck.initialize() has finished navigating to the first slide.
+        if (!reveal.getCurrentSlide()) return;
+        if (pluginConfig.suppressInOverview && reveal.isOverview()) return;
         socket.emit("notes_changed", {
             text: reveal.getSlideNotes()
         });
@@ -225,6 +252,7 @@ const init = (reveal) => {
     }
 
     function sendRemoteState() {
+        if (pluginConfig.suppressInOverview && reveal.isOverview()) return;
         socket.emit("state_changed", {
             isFirstSlide: reveal.isFirstSlide(),
             isLastSlide: reveal.isLastSlide(),
@@ -243,6 +271,8 @@ const init = (reveal) => {
 
 
     function sendMultiplexState() {
+        if (pluginConfig.suppressInOverview && reveal.isOverview()) return;
+        if (multiplexPaused) return;
         const state = reveal.getState();
         const zoomPlugin = reveal.getPlugin("remote-zoom");
         const zoom = zoomPlugin ? zoomPlugin.getCurrentZoom() : null;
@@ -254,14 +284,28 @@ const init = (reveal) => {
         div.style.display = "none";
     }
 
-    function msgSync(data) {
+    let pendingMultiplexState = null;
+
+    function applyMultiplexState(data) {
         const zoomPlugin = reveal.getPlugin("remote-zoom");
-
         reveal.setState(data.state);
-
         if (zoomPlugin) {
             zoomPlugin.setCurrentZoom(data.zoom);
         }
+    }
+
+    async function msgSync(data) {
+        if (!reveal.isReady()) {
+            // Buffer — Reveal hasn't finished initializing yet (controls DOM not
+            // created). The ready listener above will apply the latest state.
+            pendingMultiplexState = data;
+            return;
+        }
+        if (beforeSyncHook) {
+            const proceed = await beforeSyncHook(data);
+            if (proceed === false) return;
+        }
+        applyMultiplexState(data);
     }
 
     function on(cmd, fn) {
@@ -278,10 +322,19 @@ const init = (reveal) => {
         }
     }
 
+    _sendMultiplexStateRef = sendMultiplexState;
     init();
 };
 
 export default () => ({
     id: 'RevealRemote',
-    init: init
+    init: init,
+    // Register an async hook called before each incoming multiplex navigation is
+    // applied. Return false from the hook to suppress the state application.
+    onBeforeSync(fn) { beforeSyncHook = fn; },
+    // Pause or resume outgoing multiplex broadcasts (slide sync to followers).
+    setMultiplexPaused(paused) { multiplexPaused = !!paused; },
+    isMultiplexPaused() { return multiplexPaused; },
+    // Force-send current state to followers immediately (useful on resume to re-sync).
+    sendCurrentState() { if (_sendMultiplexStateRef) _sendMultiplexStateRef(); }
 });
